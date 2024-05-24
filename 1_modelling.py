@@ -102,3 +102,27 @@ C3 = C[1]
 print('insul cap: ', C3)
 C5 = air['Density'] * air['Specific heat'] * Va
 print('air cap: ', C5)
+
+
+
+
+## MATRICES 
+
+# temperature nodes
+θ = ['θ0', 'θ1', 'θ2', 'θ3', 'θ4', 'θ5']
+
+# flow-rate branches
+q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7']
+
+A = np.zeros([8, 6])        # n° of branches X n° of nodes
+A[0, 0] = 1                 # branch 0: -> node 0
+A[1, 0], A[1, 1] = -1, 1    # branch 1: node 0 -> node 1
+A[2, 1], A[2, 2] = -1, 1    # branch 2: node 1 -> node 2
+A[3, 2], A[3, 3] = -1, 1    # branch 3: node 2 -> node 3
+A[4, 3], A[4, 4] = -1, 1    # branch 4: node 3 -> node 4
+A[5, 4], A[5, 5] = 0, 1     # branch 5: node 4 -> node 5
+A[6, 4], A[6, 5] = -1, 1    # branch 6: node 4 -> node 6
+A[7, 5] = 1                 # branch 7: node 5 -> node 6
+
+pd.DataFrame(A, index=q, columns=θ)
+print(A)
