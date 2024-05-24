@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 import dm4bem
 
 ## Building properties
-a = 4               # m length of the cubic room
-b = 5
-h = 3               # m height of the walls
-Sw = h * 1.30       # m² surface area of one window
-Sd = h * 1          # m² surface area of the door
-Sc = Si =  4 * a * b * h - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
+l = 4               # m length of the cubic room
+hight = 3               # m height of the walls
+Sw = hight * 1.30       # m² surface area of one window
+Sd = hight * 1          # m² surface area of the door
+Sc = Si =  4 * l * hight - Sw - Sd   # m² surface area of concrete & insulation of the walls
 
 ## Thermophysical properties
 
@@ -56,5 +55,4 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
 print(f'σ = {σ} W/(m²⋅K⁴)')
 # Convection coefficient
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
-
 
