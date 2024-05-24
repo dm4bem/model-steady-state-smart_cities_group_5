@@ -39,3 +39,20 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                                'Layer_in': insulation,
                                'Glass': glass},
                               orient='index')
+
+
+# radiative properties
+ε_wLW = 0.85    # long wave emmissivity: wall surface (concrete)
+ε_gLW = 0.90    # long wave emmissivity: glass pyrex
+ε_dLW = 0.82    # long wave emmissivity: wood (general hardwood, Engineering Toolbox)
+α_dSW = 0.8     # short wave absortivity: wood brown (Wufiwiki)
+α_wSW = 0.25    # short wave absortivity: white smooth surface
+α_gSW = 0.38    # short wave absortivity: reflective blue glass
+τ_gSW = 0.30    # short wave transmittance: reflective blue glass
+
+
+σ = 5.67e-8     # W/(m²⋅K⁴) Stefan-Bolzmann constant
+print(f'σ = {σ} W/(m²⋅K⁴)')
+h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
+
+
