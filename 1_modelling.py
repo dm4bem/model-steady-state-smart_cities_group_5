@@ -91,3 +91,14 @@ Fwd = wood['Surface'] / concrete['Surface']
 Va = a*b*hight              # m³, volume of air
 ACH = 1                     # 1/h, air changes per hour
 Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
+Kp = 0 # no controller? 
+
+## Thermal capacities
+C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
+
+C1 = C[0]
+print('concrete cap: ', C1)
+C3 = C[1]
+print('insul cap: ', C3)
+C5 = air['Density'] * air['Specific heat'] * Va
+print('air cap: ', C5)
