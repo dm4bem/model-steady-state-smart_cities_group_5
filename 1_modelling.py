@@ -7,7 +7,7 @@ import dm4bem
 ## Building properties
 l = 4               # m length of the cubic room
 h = 3               # m height of the walls
-Sw = h * 1,30       # m² surface area of one window
+Sw = h * 1.30       # m² surface area of one window
 Sd = h * 1          # m² surface area of the door
 Sc = Si =  4 * l * h - Sw - Sd   # m² surface area of concrete & insulation of the walls
 
