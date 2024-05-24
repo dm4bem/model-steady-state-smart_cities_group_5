@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import dm4bem
 
 ## Building properties
-l = 4               # m length of the cubic room
+a = 4               # m length 
+b = 5
 hight = 3               # m height of the walls
 Sw = hight * 1.30       # m² surface area of one window
 Sd = hight * 1          # m² surface area of the door
-Sc = Si =  4 * l * hight - Sw - Sd   # m² surface area of concrete & insulation of the walls
+Sc = Si =  4 * a * b * hight - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
 
 ## Thermophysical properties
 
@@ -70,3 +71,22 @@ G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
 print(G_cd)
 pd.DataFrame(G_cd, columns=['Conductance'])
 
+# convection
+Gw = h * wall['Surface'].iloc[0]     # wall
+Gg = h * wall['Surface'].iloc[2]     # glass
+Gd = h * wall['Surface'].iloc[3]     # wood
+
+# view factor wall-glass
+    # our windows are in the same plane - no radiation
+Fwg = glass['Surface'] / concrete['Surface']
+# view factor wall-wood
+Fwg = wood['Surface'] / concrete['Surface']
+
+# long wave radiation
+Tm = 20 + 273   # K, mean temp for radiative exchange
+    # 4 * σ * Tm**3 = coeff [W/(m²·K)] at 5.7 W/(m²·K) for 20°C
+GLW1 = 4 * σ * Tm**3 * ε_wLW / (1 - ε_wLW) * wall['Surface']['Layer_in']
+GLW12 = 4 * σ * Tm**3 * Fwg * wall['Surface']['Layer_in']
+GLW2 = 4 * σ * Tm**3 * ε_gLW / (1 - ε_gLW) * wall['Surface']['Glass']
+
+GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
