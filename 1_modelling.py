@@ -64,7 +64,7 @@ print(f'σ = {σ} W/(m²⋅K⁴)')
 # Convection coefficient
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
-
+###
 ### Thermal Network
 # conduction
 G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
@@ -80,13 +80,14 @@ Gd = h * wall['Surface'].iloc[3]     # wood
     # our windows are in the same plane - no radiation
 Fwg = glass['Surface'] / concrete['Surface']
 # view factor wall-wood
-Fwg = wood['Surface'] / concrete['Surface']
+Fwd = wood['Surface'] / concrete['Surface']
 
-# long wave radiation
-Tm = 20 + 273   # K, mean temp for radiative exchange
-    # 4 * σ * Tm**3 = coeff [W/(m²·K)] at 5.7 W/(m²·K) for 20°C
-GLW1 = 4 * σ * Tm**3 * ε_wLW / (1 - ε_wLW) * wall['Surface']['Layer_in']
-GLW12 = 4 * σ * Tm**3 * Fwg * wall['Surface']['Layer_in']
-GLW2 = 4 * σ * Tm**3 * ε_gLW / (1 - ε_gLW) * wall['Surface']['Glass']
+# long wave radiation negligible
 
-GLW = 1 / (1 / GLW1 + 1 / GLW12 + 1 / GLW2)
+####
+## Advection 
+
+# ventilation flow rate
+Va = l**3                   # m³, volume of air
+ACH = 1                     # 1/h, air changes per hour
+Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
