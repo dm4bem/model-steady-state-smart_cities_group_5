@@ -49,14 +49,6 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                               orient='index')
 
 
-# radiative properties
-ε_wLW = 0.85    # long wave emmissivity: wall surface (concrete)
-ε_gLW = 0.90    # long wave emmissivity: glass pyrex
-ε_dLW = 0.82    # long wave emmissivity: wood (general hardwood, EngineeringToolbox.com)
-α_dSW = 0.8     # short wave absortivity: wood brown (Wufiwiki)
-α_wSW = 0.25    # short wave absortivity: white smooth surface
-α_gSW = 0.38    # short wave absortivity: reflective blue glass
-τ_gSW = 0.30    # short wave transmittance: reflective blue glass
 
 
 σ = 5.67e-8     # W/(m²⋅K⁴) Stefan-Bolzmann constant
@@ -66,32 +58,31 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
 ###
 ### Thermal Network
-# conduction
+
+#Ventilation flow rate
+ACH = 0.5           # 1/h closed door and windows
+Va_dot = ACH*3600/Va
+
+# CONDUCTANCES W/K
+# Conduction
 G_cd = wall['Conductivity'] / wall['Width'] * wall['Surface']
-print(G_cd)
 pd.DataFrame(G_cd, columns=['Conductance'])
 
-# convection
-Gw = h * wall['Surface'].iloc[0]     # wall
-Gg = h * wall['Surface'].iloc[2]     # glass
-Gd = h * wall['Surface'].iloc[3]     # wood
+Uwin = 1.1        # W/m2K U for both windows with double glazing, conduction and convection
+Ud = 2.5        # W/m2K U for the door, conduction and convection
+Gventi = air['Density'] * air['Specific heat'] * Va_dot
+Gdoor = Ud*Sd
+Gwin = Uwin*Swin
+Geq = Gventi + Gdoor + Gwin 
 
-# view factor wall-glass
-    # our windows are in the same plane - no radiation
-Fwg = glass['Surface'] / concrete['Surface']
-# view factor wall-wood
-Fwd = wood['Surface'] / concrete['Surface']
+# Convection
+h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
+G_conv = h * wall['Surface'].iloc[0]     # wall
 
-# long wave radiation negligible
-
-####
-## Advection 
-
-# ventilation flow rate
-Va = a*b*hight              # m³, volume of air
-ACH = 1                     # 1/h, air changes per hour
-Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
-Kp = 0 # no controller? 
+# P-controler gain
+# Kp = 1e4            # almost perfect controller Kp -> ∞
+# Kp = 1e-3           # no controller Kp -> 0
+Kp = 0  
 
 ## Thermal capacities
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
@@ -102,8 +93,6 @@ C3 = C[1]
 print('insul cap: ', C3)
 C5 = air['Density'] * air['Specific heat'] * Va
 print('air cap: ', C5)
-
-
 
 
 ## MATRICES 
@@ -127,6 +116,18 @@ A[7, 5] = 1                 # branch 7: node 5 -> node 6
 pd.DataFrame(A, index=q, columns=θ)
 print('A: ', A)
 
+
+G = np.array(np.hstack(
+    [G_conv['out'],
+     2 * G_cd['Layer_out'], 2 * G_cd['Layer_out'],
+     2 * G_cd['Layer_in'], 2 * G_cd['Layer_in'],
+     Geq,
+     G_conv['in'],
+     Kp]))
+
+# np.set_printoptions(precision=3, threshold=16, suppress=True)
+# pd.set_option("display.precision", 1)
+pd.DataFrame(G, index=q)
 
 C = np.array([0, C1, 0, C3, 0, C5])
 pd.DataFrame(C, index=θ)
