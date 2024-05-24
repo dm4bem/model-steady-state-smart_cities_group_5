@@ -132,3 +132,13 @@ pd.DataFrame(G, index=q)
 C = np.array([0, C1, 0, C3, 0, C5])
 pd.DataFrame(C, index=θ)
 print('C: ', C)
+
+b = pd.Series(['To', 0, 0, 0, 0, 'To',0, 'Ti_sp'],
+              index=q)
+
+f = pd.Series(['Φo', 0, 0, 0, 'Φi', 'Qa'],
+              index=θ)
+
+y = np.zeros(6)         # nodes
+y[[6]] = 1              # nodes (temperatures) of interest
+pd.DataFrame(y, index=θ)
