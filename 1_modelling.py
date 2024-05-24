@@ -125,4 +125,9 @@ A[6, 4], A[6, 5] = -1, 1    # branch 6: node 4 -> node 6
 A[7, 5] = 1                 # branch 7: node 5 -> node 6
 
 pd.DataFrame(A, index=q, columns=θ)
-print(A)
+print('A: ', A)
+
+
+C = np.array([0, C1, 0, C3, 0, C5])
+pd.DataFrame(C, index=θ)
+print('C: ', C)
