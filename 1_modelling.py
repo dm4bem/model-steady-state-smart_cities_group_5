@@ -53,6 +53,7 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
 
 σ = 5.67e-8     # W/(m²⋅K⁴) Stefan-Bolzmann constant
 print(f'σ = {σ} W/(m²⋅K⁴)')
+# Convection coefficient
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
 
