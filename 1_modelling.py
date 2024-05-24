@@ -88,6 +88,6 @@ Fwd = wood['Surface'] / concrete['Surface']
 ## Advection 
 
 # ventilation flow rate
-Va = l**3                   # m³, volume of air
+Va = a*b*hight              # m³, volume of air
 ACH = 1                     # 1/h, air changes per hour
 Va_dot = ACH / 3600 * Va    # m³/s, air infiltration
