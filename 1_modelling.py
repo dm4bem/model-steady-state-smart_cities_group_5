@@ -141,3 +141,18 @@ f = pd.Series(['Φo', 0, 0, 0, 'Φi', 'Qa'],
 y = np.zeros(6)         # nodes
 y[[5]] = 1              # nodes (temperatures) of interest
 pd.DataFrame(y, index=θ)
+
+# thermal circuit
+A = pd.DataFrame(A, index=q, columns=θ)
+G = pd.Series(G, index=q)
+C = pd.Series(C, index=θ)
+b = pd.Series(b, index=q)
+f = pd.Series(f, index=θ)
+y = pd.Series(y, index=θ)
+
+TC = {"A": A,
+      "G": G,
+      "C": C,
+      "b": b,
+      "f": f,
+      "y": y}
