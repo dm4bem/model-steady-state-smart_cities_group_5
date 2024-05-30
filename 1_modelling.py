@@ -83,6 +83,7 @@ Kp = 0
 
 ## Thermal capacities
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
+pd.DataFrame(C, columns=['Capacity'])
 
 C1 = C[0]
 print('concrete cap: ', C1)
