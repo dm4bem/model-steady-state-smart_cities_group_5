@@ -86,13 +86,8 @@ Kp = 0
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
 pd.DataFrame(C, columns=['Capacity'])
 
-C1 = C[0]
-print('concrete cap: ', C1)
-C3 = C[1]
-print('insul cap: ', C3)
-C5 = air['Density'] * air['Specific heat'] * Va
-print('air cap: ', C5)
-
+C['Air'] = air['Density'] * air['Specific heat'] * Va
+pd.DataFrame(C, columns=['Capacity'])
 
 ## MATRICES 
 
@@ -129,9 +124,8 @@ pd.DataFrame(G, index=q)
 # pd.set_option("display.precision", 1)
 pd.DataFrame(G, index=q)
 
-C = np.array([0, C1, 0, C3, 0, C5])
-pd.DataFrame(C, index=θ)
-print('C: ', C)
+C = np.array([0, C['Layer_out'], 0, C['Layer_in'], 0,
+                  C['Air']])
 
 b = pd.Series(['To', 0, 0, 0, 0, 'To',0, 'Ti_sp'],
               index=q)
