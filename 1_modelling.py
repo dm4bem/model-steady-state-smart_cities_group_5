@@ -122,6 +122,7 @@ G = np.array(np.hstack(
      Geq,
      G_conv['in'],
      Kp]))
+pd.DataFrame(G, index=q)
 
 # np.set_printoptions(precision=3, threshold=16, suppress=True)
 # pd.set_option("display.precision", 1)
@@ -138,5 +139,5 @@ f = pd.Series(['Φo', 0, 0, 0, 'Φi', 'Qa'],
               index=θ)
 
 y = np.zeros(6)         # nodes
-y[[6]] = 1              # nodes (temperatures) of interest
+y[[5]] = 1              # nodes (temperatures) of interest
 pd.DataFrame(y, index=θ)
