@@ -49,12 +49,10 @@ wall = pd.DataFrame.from_dict({'Layer_out': concrete,
                               orient='index')
 
 
-
 # Convection coefficient
 h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
-###
-### Thermal Network
+### THERMAL NETWORK ####
 
 #Ventilation flow rate
 ACH = 0.5           # 1/h closed door and windows
@@ -156,12 +154,12 @@ dm4bem.print_TC(TC)
 
 # STEADY STATE STUDY
 
-# by default TC['G']['q11'] = 0, i.e. Kp -> 0, no controller (free-floating)
+controller = False
+neglect_air_glass_capacity = False
+
+# by default TC['G']['q7'] = 0, i.e. Kp -> 0, no controller (free-floating)
 if controller:
     TC['G']['q7'] = 1e3        # Kp -> ∞, almost perfect controller
-
-# by default TC['G']['q11'] = 0, i.e. Kp -> 0, no controller (free-floating)
-        # Kp -> ∞, almost perfect controller
 
 if neglect_air_glass_capacity:
     TC['C']['θ6'] = TC['C']['θ7'] = 0
