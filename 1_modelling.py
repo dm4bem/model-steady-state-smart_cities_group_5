@@ -10,7 +10,7 @@ L = 5
 height = 3               # m height of the walls
 Sw = height * 1.30       # m² surface area of one window
 Sd = height * 1          # m² surface area of the door
-Sc = Si =  4 * l * L * height - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
+Sc = Si =  4 * l * L - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
 
 ## Thermophysical properties
 
