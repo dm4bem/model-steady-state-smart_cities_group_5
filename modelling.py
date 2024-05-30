@@ -151,6 +151,5 @@ TC = {"A": A,
       "f": f,
       "y": y}
 
-TC['G']['q11'] = 1e3  #car controller
 
 dm4bem.print_TC(TC)
