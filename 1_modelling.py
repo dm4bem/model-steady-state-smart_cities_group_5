@@ -157,3 +157,5 @@ TC = {"A": A,
       "b": b,
       "f": f,
       "y": y}
+
+TC['G']['q11'] = 1e3  #car controller
