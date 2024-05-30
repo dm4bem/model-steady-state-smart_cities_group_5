@@ -87,7 +87,7 @@ Kp = 0
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
 pd.DataFrame(C, columns=['Capacity'])
 
-C['Air'] = air['Density'] * air['Specific heat'] * Va
+C['Air'] = 0*air['Density'] * air['Specific heat'] * Va
 pd.DataFrame(C, columns=['Capacity'])
 
 ## MATRICES 
