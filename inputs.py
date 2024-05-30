@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import dm4bem
+#from dm4bem import read_epw, sol_rad_tilt_surf
+from dm4bem import *
+from modelling import Sc, Sw
 
-from dm4bem import read_epw, sol_rad_tilt_surf
-
-
-#filename = './FRA_AR_Grenoble.074850_TMYx.epw'
+#filename = './weather_data/FRA_AR_Grenoble.074850_TMYx.epw'
 filename = './FRA_AR_Grenoble.Alpes.Isere.AP.074860_TMYx.2007-2021.epw'
 
 
