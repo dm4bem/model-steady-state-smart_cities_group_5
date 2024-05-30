@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 import dm4bem
 
 ## Building properties
-a = 4               # m length 
-b = 5
-hight = 3               # m height of the walls
-Sw = hight * 1.30       # m² surface area of one window
-Sd = hight * 1          # m² surface area of the door
-Sc = Si =  4 * a * b * hight - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
+l = 4                   # m length 
+L = 5
+height = 3               # m height of the walls
+Sw = height * 1.30       # m² surface area of one window
+Sd = height * 1          # m² surface area of the door
+Sc = Si =  4 * l * L * height - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
 
 ## Thermophysical properties
 
@@ -58,6 +58,7 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 
 #Ventilation flow rate
 ACH = 0.5           # 1/h closed door and windows
+Va = l*L*height                   # m³, volume of air
 Va_dot = ACH*3600/Va
 
 # CONDUCTANCES W/K
@@ -69,7 +70,7 @@ Uwin = 1.1        # W/m2K U for both windows with double glazing, conduction and
 Ud = 2.5        # W/m2K U for the door, conduction and convection
 Gventi = air['Density'] * air['Specific heat'] * Va_dot
 Gdoor = Ud*Sd
-Gwin = Uwin*Swin
+Gwin = Uwin*Sw
 Geq = Gventi + Gdoor + Gwin 
 
 # Convection
@@ -101,7 +102,7 @@ print('air cap: ', C5)
 # flow-rate branches
 q = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7']
 
-A = np.zeros([8, 5])       # n° of branches X n° of nodes
+A = np.zeros([8, 6])       # n° of branches X n° of nodes
 A[0, 0] = 1                 # branch 0: -> node 0
 A[1, 0], A[1, 1] = -1, 1    # branch 1: node 0 -> node 1
 A[2, 1], A[2, 2] = -1, 1    # branch 2: node 1 -> node 2
