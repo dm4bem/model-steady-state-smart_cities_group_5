@@ -108,7 +108,6 @@ A[6, 4], A[6, 5] = -1, 1    # branch 6: node 4 -> node 5
 A[7, 5] = 1                 # branch 7: -> node 5
 
 pd.DataFrame(A, index=q, columns=θ)
-print('A: ', A)
 
 
 G = np.array(np.hstack(
@@ -153,3 +152,5 @@ TC = {"A": A,
       "y": y}
 
 TC['G']['q11'] = 1e3  #car controller
+
+dm4bem.print_TC(TC)
