@@ -8,8 +8,8 @@ import dm4bem
 l = 4                   # m length 
 L = 5
 height = 3               # m height of the walls
-Sw = height * 1.30       # m² surface area of one window
-Sd = height * 1          # m² surface area of the door
+Sw = 1.30**2       # m² surface area of one window
+Sd =  1* 1          # m² surface area of the door
 Sc = Si =  4 * l * L - 2*Sw - Sd   # m² surface area of concrete & insulation of the walls
 
 ## Thermophysical properties
