@@ -84,7 +84,7 @@ h = pd.DataFrame([{'in': 8., 'out': 25}], index=['h'])  # W/(m²⋅K)
 G_conv = h * wall['Surface'].iloc[0]     # wall
 
 # P-controler gain
-# Kp = 1e4            # almost perfect controller Kp -> ∞
+Kp = 1e3            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
 # Kp = 0  
 
@@ -161,6 +161,72 @@ TC['G']['q7'] = 1e3  #car controller
 
 dm4bem.print_TC(TC)
 
+# STEADY STATE STUDY
+# =======================
+
+controller = False
+neglect_air_glass_capacity = False
+
+# by default TC['G']['q7'] = 0, i.e. Kp -> 0, no controller (free-floating)
+if controller:
+    TC['G']['q7'] = 1e3        # Kp -> ∞, almost perfect controller
+
+# by default TC['G']['q7'] = 0, i.e. Kp -> 0, no controller (free-floating)
+        # Kp -> ∞, almost perfect controller
+
+if neglect_air_glass_capacity:
+    TC['C']['θ6'] = TC['C']['θ7'] = 0
+    # or
+    TC['C'].update({'θ6': 0, 'θ7': 0})
+# State-space
+[As, Bs, Cs, Ds, us] = dm4bem.tc2ss(TC)
+
+bss = np.zeros(8)        # temperature sources b for steady state
+bss[[0, 5]] = 10      # outdoor temperature
+bss[[7]] = 20            # indoor set-point temperature
+
+fss = np.zeros(6)         # flow-rate sources f for steady state
+A = TC['A']
+G = TC['G']
+diag_G = pd.DataFrame(np.diag(G), index=G.index, columns=G.index)
+
+θss = np.linalg.inv(A.T @ diag_G @ A) @ (A.T @ diag_G @ bss + fss)
+print(f'θss = {np.around(θss, 2)} °C')
+bss = np.zeros(8)        # temperature sources b for steady state
+
+fss = np.zeros(6)         # flow-rate sources f for steady state
+fss[[5]] = 100000
+
+θssQ = np.linalg.inv(A.T @ diag_G @ A) @ (A.T @ diag_G @ bss + fss)
+print(f'θssQ = {np.around(θssQ, 2)} °C')
+bT = np.array([10, 10, 20])     # [To, To, To, Tisp]
+fQ = np.array([0, 0, 0])         # [Φo, Φi, Qa, Φa]
+uss = np.hstack([bT, fQ])           # input vector for state space
+print(f'uss = {uss}')
+
+inv_As = pd.DataFrame(np.linalg.inv(As),
+                      columns=As.index, index=As.index)
+yss = (-Cs @ inv_As @ Bs + Ds) @ uss
+
+yss = float(yss.values[0])
+print(f'yss = {yss:.2f} °C')
+
+print(f'Error between DAE and state-space: {abs(θss[5] - yss):.2e} °C')
+
+bT = np.array([0, 0, 0])         # [To, To, To, Tisp]
+fQ = np.array([0, 0, 100000])      # [Φo, Φi, Qa, Φa]
+uss = np.hstack([bT, fQ])
+
+inv_As = pd.DataFrame(np.linalg.inv(As),
+                      columns=As.index, index=As.index)
+yssQ = (-Cs @ inv_As @ Bs + Ds) @ uss
+
+yssQ = float(yssQ.values[0])
+print(f'yssQ = {yssQ:.2f} °C')
+
+print(f'Error between DAE and state-space: {abs(θssQ[5] - yssQ):.2e} °C')
+
+
 ### INPUTS
 # ==============
 #filename = './weather_data/FRA_AR_Grenoble.074850_TMYx.epw'
@@ -190,7 +256,7 @@ weather_data.index = weather_data.index.map(
 
 # Define start and end dates
 start_date = '2023-01-01 00:00'
-end_date = '2023-12-31 23:00'         # time is 00:00 if not indicated
+end_date = '2023-01-31 23:00'         # time is 00:00 if not indicated
 
 # Filter the data based on the start and end dates
 donne = weather_data.loc[start_date:end_date]
@@ -261,9 +327,9 @@ imposed_time_step = True
 # Thermal circuits
 dm4bem.print_TC(TC)
 
-# by default TC['G']['q11'] = 0 # Kp -> 0, no controller (free-floating
+# by default TC['G']['q7'] = 0 # Kp -> 0, no controller (free-floating
 if controller:
-    TC['G']['q7'] = Kp     # G7 = Kp, conductance of edge q7
+    TC['G']['q7'] = Kp*1e2     # G7 = Kp, conductance of edge q7
                             # Kp -> ∞, almost perfect controller
 
 # State-space
@@ -295,14 +361,7 @@ u = dm4bem.inputs_in_time(us, input_data_set)
 
 I = np.eye(As.shape[0])  # identity matrix
 
-Kp = TC['G']['q7']  # controller gain
-
-
-for k in range(u.shape[0]):
-    # Update HVAC heat flow
-    q_HVAC = Kp * (u.at[u.index[k], 'q7'] - θ.at[θ.index[k], 'θ5'])/S
-    q_HVAC = q_HVAC.astype(np.int64)
-    u.at[u.index[k], 'q7'] = q_HVAC
+# Kp = TC['G']['q7']  # controller gain
 
 if explicit_Euler:
     for k in range(u.shape[0] - 1):
@@ -314,12 +373,15 @@ else:
             I - dt * As) @ (θ.iloc[k] + dt * Bs @ u.iloc[k])
 
 # Outputs
-y = (Cs @ θ.T + Ds @ u.T).T
+y = (Cs @ θ.T + Ds @  u.T).T
+
+S = 5*4                   # m², surface area of the building
+q_HVAC = Kp * (u['q7'] - y['θ5']) / S  # W/m²
 
 data = pd.DataFrame({'To': input_data_set['To'],
                      'θi': y['θ5'],
                      'Etot': input_data_set['Etot'],
-                     'q_HVAC': u['q7']})
+                     'q_HVAC': q_HVAC})
 
 fig, axs = plt.subplots(2, 1)
 data[['To', 'θi']].plot(ax=axs[0],
