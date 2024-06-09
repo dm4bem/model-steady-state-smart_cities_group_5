@@ -86,7 +86,7 @@ G_conv = h * wall['Surface'].iloc[0]     # wall
 # P-controler gain
 # Kp = 1e4            # almost perfect controller Kp -> ∞
 # Kp = 1e-3           # no controller Kp -> 0
-Kp = 0  
+# Kp = 0  
 
 ## Thermal capacities
 C = wall['Density'] * wall['Specific heat'] * wall['Surface'] * wall['Width']
