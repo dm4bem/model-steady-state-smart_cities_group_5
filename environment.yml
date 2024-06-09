@@ -13,3 +13,4 @@ dependencies:
   - scipy=1.6.2
   - pandas=1.2.4
   - voila>=0.2.11
+  - jupyterlab-executor
