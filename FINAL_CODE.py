@@ -311,8 +311,91 @@ input_data_set = pd.DataFrame({'To': To, 'Ti_sp': Ti_sp,
                                'Φo': Φo, 'Φi': Φi, 'Qa': Qa,
                                'Etot': Etot})
 
+
+#### STEP RESPONSE STUDY
+
+
+
+# Eigenvalues analysis
+λ = np.linalg.eig(As)[0]        # eigenvalues of matrix As
+
+# time step
+dtmax = 2 * min(-1. / λ)    # max time step for Euler explicit stability
+dm4bem.print_rounded_time('dtmax', dtmax)
+
+if imposed_time_step:
+    dt = Δt
+else:
+    dt = dm4bem.round_time(dtmax)
+dm4bem.print_rounded_time('dt', dt)
+
+if dt < 10:
+    raise ValueError("Time step is too small. Stopping the script.")
+
+# settling time
+t_settle = 4 * max(-1 / λ)
+dm4bem.print_rounded_time('t_settle', t_settle)
+
+# duration: next multiple of 3600 s that is larger than t_settle
+duration = np.ceil(t_settle / 3600) * 3600
+dm4bem.print_rounded_time('duration', duration)
+
+# Create input_data_set
+# ---------------------
+# time vector
+n = int(np.floor(duration / dt))    # number of time steps
+
+# DateTimeIndex starting at "00:00:00" with a time step of dt
+time = pd.date_range(start="2000-01-01 00:00:00",
+                           periods=n, freq=f"{int(dt)}S")
+
+To = 10 * np.ones(n)        # outdoor temperature
+Ti_sp = 20 * np.ones(n)     # indoor temperature set point
+Φa = 0 * np.ones(n)         # solar radiation absorbed by the glass
+Qa = Φo = Φi = Φa           # auxiliary heat sources and solar radiation
+
+data = {'To': To, 'Ti_sp': Ti_sp, 'Φo': Φo, 'Φi': Φi, 'Qa': Qa, 'Φa': Φa}
+input_data_set = pd.DataFrame(data, index=time)
+
+# inputs in time from input_data_set
+u = dm4bem.inputs_in_time(us, input_data_set)
+
+# Initial conditions
+θ_exp = pd.DataFrame(index=u.index)     # empty df with index for explicit Euler
+θ_imp = pd.DataFrame(index=u.index)     # empty df with index for implicit Euler
+
+θ0 = 0.0                    # initial temperatures
+θ_exp[As.columns] = θ0      # fill θ for Euler explicit with initial values θ0
+θ_imp[As.columns] = θ0      # fill θ for Euler implicit with initial values θ0
+
+I = np.eye(As.shape[0])     # identity matrix
+for k in range(u.shape[0] - 1):
+    θ_exp.iloc[k + 1] = (I + dt * As)\
+        @ θ_exp.iloc[k] + dt * Bs @ u.iloc[k]
+    θ_imp.iloc[k + 1] = np.linalg.inv(I - dt * As)\
+        @ (θ_imp.iloc[k] + dt * Bs @ u.iloc[k])
+
+# outputs
+y_exp = (Cs @ θ_exp.T + Ds @  u.T).T
+y_imp = (Cs @ θ_imp.T + Ds @  u.T).T
+
+# plot results
+y = pd.concat([y_exp, y_imp], axis=1, keys=['Explicit', 'Implicit'])
+# Flatten the two-level column labels into a single level
+y.columns = y.columns.get_level_values(0)
+
+ax = y.plot()
+ax.set_xlabel('Time')
+ax.set_ylabel('Indoor temperature, $\\theta_i$ / °C')
+ax.set_title(f'Time step: $dt$ = {dt:.0f} s; $dt_{{max}}$ = {dtmax:.0f} s')
+plt.show()
+
+
+
 #### SIMULATION
 # ==============
+
+
 controller = True
 Kp = 1e3    # W/°C, controller gain
 
